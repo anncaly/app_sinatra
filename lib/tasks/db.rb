@@ -1,9 +1,12 @@
 require 'rake'
 require 'dotenv/tasks'
 
+require 'sequel'
+require 'sequel/extensions/seed'
+
 namespace :db do
 
-  require 'sequel'
+  # require 'sequel'
   Sequel.extension :migration
   environment = ENV['RACK_ENV'] || 'development'
   ENV['DATABASE'] = 'app_sinatra_dev' if environment == 'development'
@@ -47,8 +50,23 @@ namespace :db do
 
   desc "Perform rollback to specified target or full rollback as default"
   task :seed do
-    seed_file = File.join('./seeds.rb')
-    load(seed_file) if File.exist?(seed_file)
+    # seed_file = File.join('./seeds.rb')
+    # load(seed_file) if File.exist?(seed_file)
+
+    puts 'seed task running'
+    puts 'Check: schema_seeds to be clean!'
+    Sequel::Seed.setup :development # Set the environment
+    Sequel.extension :seed # Load the extension
+    DB = Sequel.connect(
+        adapter: :postgres,
+        database: 'app_sinatra_dev',
+        host: 'localhost',
+        password: 'password',
+        user: 'sinatra_admin',
+        max_connections: 10,
+    # logger: Logger.new('log/db.log')
+    )
+    Sequel::Seeder.apply(DB, './seeds') # Apply the seeds/fixtures
   end
 
 

@@ -17,7 +17,7 @@ require 'multi_json'
 
 DB = Sequel.connect(
     adapter: :postgres,
-    database: 'sinatra_seq_dev',
+    database: 'app_sinatra_dev',
     host: 'localhost',
     password: 'password',
     user: 'sinatra_admin',
@@ -32,6 +32,15 @@ DB = Sequel.connect(
 #  $LOAD_PATH << File.expand_path('', File.join(File.dirname(__FILE__).dir))
 #  require File.join(dir, 'init')
 #end
+
+# Endpoints format setup
+before do
+  content_type 'application/json' # To see perfectly in POSTMAN - in tab Pretty
+end
+
+def collection_to_api(collection) 		# For Array
+  MultiJson.dump(collection.map { |s| s.to_api })
+end
 
 get '/' do
   'Hello My Sinatra - Easy and Wide World!'
